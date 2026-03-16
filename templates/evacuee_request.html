@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-5">
+
+    <h1 class="fw-bold">Request Shelter</h1>
+    <p class="text-muted mb-4">
+        Submit your request for temporary shelter accommodation.
+    </p>
+
+    <div class="row">
+        <div class="col-md-7">
+            <div class="card shadow-sm border-0 p-4 rounded-4 mb-4">
+                <form method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">
+                            Evacuee Category
+                        </label>
+                <select name="category" class="form-select rounded-3" required>
+                    <option value="" disabled selected>Select Category</option>
+                    <option value="Adult">Adult</option>
+                    <option value="Child">Child</option>
+                    <option value="Elderly">Elderly</option>
+                    <option value="Disabled">Disabled</option>
+                    <option value="Family with children">Family with children</option>
+                    <option value="Mixed Group">Mixed Group</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-semibold">
+                    Group Size
+                </label>
+                <input type="number" name="group_size" class="form-control rounded-3" min="1" value="1" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-semibold">
+                    Reason for Shelter Request
+                </label>
+                <textarea name="reason"
+                          class="form-control rounded-3"
+                          rows="5"
+                          placeholder="Explain your situation clearly..."
+                          maxlength="1000"
+                          required></textarea>
+            </div>
+
+            <button type="submit"
+                    class="btn btn-dark rounded-pill px-4">
+                Submit Request
+            </button>
+
+            <a href="{{ url_for('evacuee_dashboard') }}"
+               class="btn btn-outline-secondary rounded-pill px-4 ms-2">
+                Cancel
+            </a>
+
+                </form>
+
+            </div>
+        </div>
+
+        <div class="col-md-5">
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-header bg-success text-white fw-bold">
+                    Nearest Recommendations ({{ session.get('district') or 'Your District' }})
+                </div>
+                <div class="card-body p-0">
+                    {% if nearest_shelters %}
+                    <ul class="list-group list-group-flush">
+                        {% for s in nearest_shelters %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                            <div>
+                                <h6 class="mb-0 fw-bold">{{ s.name }}</h6>
+                                <small class="text-muted">{{ s.town }}, {{ s.city }}</small>
+                            </div>
+                            <span class="badge bg-primary rounded-pill">
+                                Capacity: {{ s.capacity - s.occupancy }} free
+                            </span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <div class="p-4 text-center text-muted">
+                        No active shelters with available capacity found in your district.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

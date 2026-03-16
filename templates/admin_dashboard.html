@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2 class="dashboard-title mb-4">Admin Control Panel</h2>
+
+<!-- Main Layout -->
+<div class="row gx-4">
+    <!-- Left Column: Analytics & Navigation -->
+    <div class="col-lg-8">
+        
+        <!-- Statistics Grid -->
+        <h5 class="fw-bold mb-3 text-secondary">System Analytics</h5>
+        <div class="row g-3 mb-4">
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="card bg-primary text-white h-100 shadow-sm border-0 rounded-4">
+                    <div class="card-body">
+                        <h6 class="text-uppercase mb-1 opacity-75 fw-bold" style="font-size: 0.8rem;">Shelters</h6>
+                        <h2 class="fw-bold mb-0">{{ stats['active_shelters'] }}<span class="fs-5 fw-normal opacity-75">/{{ stats['total_shelters'] }}</span></h2>
+                        <small class="opacity-75">Active / Total</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="card bg-success text-white h-100 shadow-sm border-0 rounded-4">
+                    <div class="card-body">
+                        <h6 class="text-uppercase mb-1 opacity-75 fw-bold" style="font-size: 0.8rem;">Full Shelters</h6>
+                        <h2 class="fw-bold mb-0">{{ stats['shelters_full'] }}</h2>
+                        <small class="opacity-75">At 100%+ Capacity</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="card bg-info text-white h-100 shadow-sm border-0 rounded-4">
+                    <div class="card-body">
+                        <h6 class="text-uppercase mb-1 opacity-75 fw-bold" style="font-size: 0.8rem;">Total Evacuees</h6>
+                        <h2 class="fw-bold mb-0">{{ stats['total_evacuees'] }}</h2>
+                        <small class="opacity-75">Assigned to Shelters</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="card bg-warning text-dark h-100 shadow-sm border-0 rounded-4">
+                    <div class="card-body">
+                        <h6 class="text-uppercase mb-1 opacity-75 fw-bold" style="font-size: 0.8rem;">Pending Shelter Reqs</h6>
+                        <h2 class="fw-bold mb-0">{{ stats['pending_requests'] }}</h2>
+                        <small class="opacity-75">Awaiting Volunteer Appr.</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="card bg-danger text-white h-100 shadow-sm border-0 rounded-4">
+                    <div class="card-body">
+                        <h6 class="text-uppercase mb-1 opacity-75 fw-bold" style="font-size: 0.8rem;">Pending Medical Reqs</h6>
+                        <h2 class="fw-bold mb-0">{{ stats['medical_requests'] }}</h2>
+                        <small class="opacity-75">Needs Assistance</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="card bg-dark text-white h-100 shadow-sm border-0 rounded-4">
+                    <div class="card-body">
+                        <h6 class="text-uppercase mb-1 opacity-75 fw-bold" style="font-size: 0.8rem;">Total Volunteers</h6>
+                        <h2 class="fw-bold mb-0">{{ volunteers|length }}</h2>
+                        <small class="opacity-75">Registered in System</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Actions -->
+        <h5 class="fw-bold mb-3 text-secondary mt-5">Quick Actions</h5>
+        <div class="d-flex flex-wrap gap-2 mb-4">
+            <a href="{{ url_for('manage_shelters') }}" class="btn btn-outline-primary px-4 rounded-pill fw-semibold">
+                <i class="bi bi-house-gear me-2"></i>Manage Shelters
+            </a>
+            <a href="{{ url_for('assign_volunteer') }}" class="btn btn-outline-success px-4 rounded-pill fw-semibold">
+                <i class="bi bi-person-badge me-2"></i>Assign Volunteers
+            </a>
+            <a href="{{ url_for('assigned_requests') }}" class="btn btn-outline-dark px-4 rounded-pill fw-semibold">
+                <i class="bi bi-list-check me-2"></i>View Allocations
+            </a>
+            <a href="{{ url_for('verify_evacuees') }}" class="btn btn-outline-warning text-dark px-4 rounded-pill fw-semibold">
+                <i class="bi bi-person-vcard me-2"></i>Verify Evacuees
+            </a>
+        </div>
+
+    </div>
+
+    <!-- Right Column: Disaster Operations Controls -->
+    <div class="col-lg-4">
+        
+        <!-- Disaster Type Form -->
+        <div class="card shadow-sm border-0 rounded-4 mb-4 border-top border-danger border-4">
+            <div class="card-body p-4">
+                <h5 class="fw-bold text-danger mb-3">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>Active Disaster Type
+                </h5>
+                <form action="{{ url_for('update_disaster_status') }}" method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="mb-3">
+                        <select class="form-select form-select-lg" name="disaster_type" required>
+                            <option value="System Normal - No active disaster" {% if current_disaster == 'System Normal - No active disaster' %}selected{% endif %}>System Normal</option>
+                            <option value="Flood" {% if current_disaster == 'Flood' %}selected{% endif %}>Flood</option>
+                            <option value="Earthquake" {% if current_disaster == 'Earthquake' %}selected{% endif %}>Earthquake</option>
+                            <option value="Cyclone / Hurricane" {% if current_disaster == 'Cyclone / Hurricane' %}selected{% endif %}>Cyclone / Hurricane</option>
+                            <option value="Landslide" {% if current_disaster == 'Landslide' %}selected{% endif %}>Landslide</option>
+                            <option value="Wildfire" {% if current_disaster == 'Wildfire' %}selected{% endif %}>Wildfire</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-danger w-100 fw-bold">Update Status</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Global Alert Form -->
+        <div class="card shadow-sm border-0 rounded-4 mb-4 border-top border-warning border-4">
+            <div class="card-body p-4">
+                <h5 class="fw-bold text-warning-emphasis mb-3">
+                    <i class="bi bi-mega-phone-fill me-2"></i>Broadcast Alert
+                </h5>
+                <form action="{{ url_for('broadcast_alert') }}" method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="mb-3">
+                        <textarea class="form-control" name="message" rows="3" placeholder="Enter emergency message to display to all users..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-warning w-100 fw-bold text-dark">Send Alert</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Volunteer Task Assignment Form -->
+        <div class="card shadow-sm border-0 rounded-4 border-top border-primary border-4">
+            <div class="card-body p-4">
+                <h5 class="fw-bold text-primary mb-3">
+                    <i class="bi bi-list-task me-2"></i>Assign Volunteer Task
+                </h5>
+                <form action="{{ url_for('assign_volunteer_task') }}" method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Select Volunteer</label>
+                        <select name="volunteer_id" class="form-select" required>
+                            <option value="" disabled selected>Choose a volunteer...</option>
+                            {% for v in volunteers %}
+                                <option value="{{ v.id }}">{{ v.name }} - {{ v.contact }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Task Description</label>
+                        <textarea name="task_description" class="form-control" rows="2" placeholder="e.g. Distribute food, Medical assistance" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 fw-bold">Assign Task</button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Small Script to Set Width Dynamically -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const bars = document.querySelectorAll(".progress-bar");
+    bars.forEach(bar => {
+        const width = bar.getAttribute("data-width");
+        bar.style.width = width + "%";
+    });
+});
+</script>
+
+{% endblock %}

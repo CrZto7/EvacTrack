@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Medical Assistance</h2>
+        <a href="{{ url_for('evacuee_dashboard') }}" class="btn btn-outline-secondary">Back to Dashboard</a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-5">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-danger text-white">Request Medical Assistance</div>
+                <div class="card-body">
+                    <form method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Request Details</label>
+                            <textarea name="request_details" class="form-control" rows="4" placeholder="E.g. Insulin, Asthma inhaler, First aid, Wheelchair support..." maxlength="1000" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-danger w-100">Submit Request</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-7">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-dark text-white">Your Medical Requests</div>
+                <div class="card-body">
+                    {% if requests %}
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Details</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for req in requests %}
+                            <tr>
+                                <td>{{ req.created_at }}</td>
+                                <td>{{ req.request_details }}</td>
+                                <td>
+                                    {% if req.status == 'Pending' %}
+                                        <span class="badge bg-warning text-dark">Pending</span>
+                                    {% else %}
+                                        <span class="badge bg-success">Completed</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <p class="text-muted">You haven't made any medical requests.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

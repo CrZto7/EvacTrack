@@ -1,0 +1,11 @@
+{% if global_disaster_type and global_disaster_type != 'System Normal - No active disaster' %}
+<div class="bg-danger text-white text-center py-2 fw-bold shadow-sm">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i>Current Active Disaster: {{ global_disaster_type }}
+</div>
+{% endif %}
+
+{% if global_alert %}
+<div class="bg-warning text-dark text-center py-2 border-bottom border-warning shadow-sm">
+    <i class="bi bi-megaphone-fill me-2"></i><strong>ALERT:</strong> {{ global_alert }}
+</div>
+{% endif %}

@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-5">
+
+    <h1 class="fw-bold">Evacuee Dashboard</h1>
+    <p class="text-muted mb-4">
+        Overview of your shelter request and assignment details.
+    </p>
+
+    <div class="card shadow-sm border-0 p-4 rounded-4">
+
+        <!-- Verification Status Widget -->
+        <div class="mb-4 p-3 rounded-3 {% if verification_status == 'Verified' %}bg-success-subtle text-success{% elif verification_status == 'Rejected' %}bg-danger-subtle text-danger{% else %}bg-warning-subtle text-dark{% endif %}">
+            <h6 class="fw-bold mb-1">
+                <i class="bi {% if verification_status == 'Verified' %}bi-check-circle-fill{% elif verification_status == 'Rejected' %}bi-x-circle-fill{% else %}bi-clock-history{% endif %} me-2"></i>
+                Identity Verification: {{ verification_status }}
+            </h6>
+            <span class="small opacity-75">
+                {% if verification_status == 'Pending' %}
+                    Your ID is currently under active review. You cannot request a shelter until verified.
+                {% elif verification_status == 'Verified' %}
+                    Your identity has been verified. You may request a shelter.
+                {% elif verification_status == 'Rejected' %}
+                    Your ID was rejected. Please contact an administrator or register again.
+                {% endif %}
+            </span>
+        </div>
+
+        {% if request_info %}
+
+            <div class="mb-3">
+                <strong>Review Status:</strong>
+                <span class="badge 
+                    {% if request_info.review_status == 'Pending' %}
+                        bg-warning text-dark
+                    {% elif request_info.review_status == 'Approved' %}
+                        bg-success
+                    {% elif request_info.review_status == 'Rejected' %}
+                        bg-danger
+                    {% endif %}
+                ">
+                    {{ request_info.review_status }}
+                </span>
+            </div>
+
+            <div class="mb-3">
+                <strong>Assignment Status:</strong>
+                <span class="badge 
+                    {% if request_info.assignment_status == 'Assigned' %}
+                        bg-success
+                    {% else %}
+                        bg-secondary
+                    {% endif %}
+                ">
+                    {{ request_info.assignment_status }}
+                </span>
+            </div>
+
+            <div class="mb-3">
+                <strong>Check-In Status:</strong>
+                {% if request_info.assignment_status == 'Assigned' %}
+                    {% if request_info.check_in_status == 'Checked-In' %}
+                        <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Checked-In</span>
+                    {% else %}
+                        <form action="{{ url_for('evacuee_checkin') }}" method="POST" class="d-inline ms-2">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-sm btn-primary rounded-pill px-3 shadow-sm">Confirm Arrival (Check-In)</button>
+                        </form>
+                    {% endif %}
+                {% else %}
+                    <span class="badge bg-secondary">Awaiting Assignment</span>
+                {% endif %}
+            </div>
+
+            {% if request_info.shelter_name %}
+                <hr>
+                <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-2">
+                    <h5 class="fw-semibold mb-0">Assigned Shelter</h5>
+                    <div class="d-flex gap-2">
+                        <a href="{{ url_for('evacuee_medical') }}" class="btn btn-sm btn-outline-danger rounded-pill px-3">
+                            Request Medical Info/Supplies
+                        </a>
+                        <form action="{{ url_for('evacuee_checkout') }}" method="POST" onsubmit="return confirm('Are you sure you want to check out? This will free your slot for others.');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-sm btn-danger rounded-pill px-3">Check Out</button>
+                        </form>
+                    </div>
+                </div>
+                <p class="mb-1"><strong>{{ request_info.shelter_name }}</strong></p>
+                <p class="text-muted">
+                    {{ request_info.town }},
+                    {{ request_info.city }},
+                    {{ request_info.district }},
+                    {{ request_info.state }}
+                </p>
+            {% endif %}
+
+            {% if request_info.volunteer_name %}
+                <hr>
+                <h5 class="fw-semibold">Assigned Volunteer</h5>
+                <p class="mb-1"><strong>{{ request_info.volunteer_name }}</strong></p>
+                <p class="text-muted">
+                    Contact: {{ request_info.volunteer_contact }}
+                </p>
+            {% endif %}
+
+            {% if request_info.review_status == 'Rejected' %}
+                <hr>
+                <a href="{{ url_for('submit_request') }}"
+                   class="btn btn-dark rounded-pill px-4">
+                    Submit New Request
+                </a>
+            {% endif %}
+
+        {% else %}
+
+            <p class="text-muted">You have not submitted any shelter request yet.</p>
+
+            <hr>
+
+            <a href="{{ url_for('submit_request') }}"
+               class="btn btn-dark rounded-pill px-4">
+                Request Shelter
+            </a>
+
+        {% endif %}
+
+    </div>
+
+    <!-- NEW SECTION: Missing Persons -->
+    <hr class="my-5">
+    <h3 class="fw-bold mb-4 text-danger"><i class="bi bi-person-exclamation me-2"></i>Missing Person Reports</h3>
+    
+    <div class="row">
+        <div class="col-md-5">
+            <div class="card shadow-sm border-0 border-top border-danger border-3 rounded-4 bg-light mb-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold text-danger mb-3">Report Missing Person</h5>
+                    <form action="{{ url_for('report_missing_person') }}" method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Name</label>
+                            <input type="text" name="name" class="form-control" required>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label small fw-semibold">Age</label>
+                                <input type="number" name="age" class="form-control" required>
+                            </div>
+                            <div class="col-md-8 mb-3">
+                                <label class="form-label small fw-semibold">Last Seen Location</label>
+                                <input type="text" name="last_seen_location" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Description / Identifying Features</label>
+                            <textarea name="description" class="form-control" rows="2" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-danger w-100 fw-bold rounded-pill shadow-sm">Submit Report</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-7">
+            <h5 class="fw-bold mb-3">Your Reports</h5>
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="list-group list-group-flush pt-1">
+                    {% for mp in missing_persons %}
+                    <div class="list-group-item p-4 border-0 border-bottom">
+                        <div class="d-flex w-100 justify-content-between align-items-center">
+                            <h5 class="mb-1 fw-bold">{{ mp.name }} <span class="badge bg-secondary ms-2">Age: {{ mp.age }}</span></h5>
+                            <small class="text-muted"><i class="bi bi-clock me-1"></i>{{ mp.report_time.split(' ')[0] if mp.report_time else '' }}</small>
+                        </div>
+                        <p class="mb-2 mt-2"><strong><i class="bi bi-geo-alt me-1 text-danger"></i>Last Seen:</strong> {{ mp.last_seen_location }}</p>
+                        <p class="mb-0 text-muted"><i class="bi bi-card-text me-1 text-primary"></i>{{ mp.description }}</p>
+                    </div>
+                    {% else %}
+                    <div class="p-5 text-muted text-center border-0">
+                        <i class="bi bi-person-check fs-1 text-secondary opacity-50 mb-3 d-block"></i>
+                        No missing person reports submitted.
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

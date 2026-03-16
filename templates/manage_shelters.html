@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% from "macros/_macros.html" import render_capacity_badge %}
+
+{% block content %}
+
+<section class="py-4">
+
+    <div class="mb-4">
+        <h2 class="fw-bold">Shelter Management</h2>
+        <p class="text-muted">
+            Add and monitor emergency shelters.
+        </p>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body">
+
+            <form method="POST" class="row g-3">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <div class="col-md-4">
+                    <input class="form-control"
+                           name="name"
+                           placeholder="Shelter Name"
+                           required>
+                </div>
+
+                <!-- Structured Location -->
+                <div class="col-md-2">
+                    <input class="form-control"
+                           name="town"
+                           placeholder="Town"
+                           required>
+                </div>
+
+                <div class="col-md-2">
+                    <input class="form-control"
+                           name="city"
+                           placeholder="City"
+                           required>
+                </div>
+
+                <div class="col-md-2">
+                    <input class="form-control"
+                           name="district"
+                           placeholder="District"
+                           required>
+                </div>
+
+                <div class="col-md-2">
+                    <input class="form-control"
+                           name="state"
+                           placeholder="State"
+                           required>
+                </div>
+
+                <div class="col-md-3">
+                    <input type="number"
+                           min="1"
+                           class="form-control"
+                           name="capacity"
+                           placeholder="Capacity"
+                           required>
+                </div>
+
+                <div class="col-12">
+                    <button class="btn btn-dark">
+                        Add Shelter
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+    <!-- Shelter List -->
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+
+            {% if shelters %}
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Name</th>
+                            <th>Town</th>
+                            <th>City</th>
+                            <th>District</th>
+                            <th>State</th>
+                            <th>Capacity</th>
+                            <th>Occupancy</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for shelter in shelters %}
+                        <tr>
+                            <td>{{ shelter.name }}</td>
+                            <td>{{ shelter.town }}</td>
+                            <td>{{ shelter.city }}</td>
+                            <td>{{ shelter.district }}</td>
+                            <td>{{ shelter.state }}</td>
+                            <td>{{ shelter.capacity }}</td>
+                            <td>
+                                {{ render_capacity_badge(shelter.occupancy, shelter.capacity) }}
+                            </td>
+                            <td>
+                                {% if shelter.status == 'ACTIVE' %}
+                                <span class="badge bg-success">Active</span>
+                                {% else %}
+                                <span class="badge bg-danger">Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{{ url_for('manage_supplies', shelter_id=shelter.id) }}" class="btn btn-sm btn-info text-white mb-1">
+                                    Supplies
+                                </a>
+                                <br>
+                                <form action="{{ url_for('toggle_shelter_status', shelter_id=shelter.id) }}" method="POST" class="d-inline">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary">
+                                        {% if shelter.status == 'ACTIVE' %}
+                                            Deactivate
+                                        {% else %}
+                                            Activate
+                                        {% endif %}
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+                <p class="text-muted">No shelters available.</p>
+            {% endif %}
+
+        </div>
+    </div>
+
+</section>
+
+{% endblock %}

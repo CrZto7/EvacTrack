@@ -1,0 +1,20 @@
+{% macro render_capacity_badge(occupancy, capacity) %}
+    {% set percentage = (occupancy / capacity * 100) if capacity > 0 else 0 %}
+    {% if percentage >= 90 %}
+        <span class="badge bg-danger">{{ occupancy }} / {{ capacity }} (Full)</span>
+    {% elif percentage >= 70 %}
+        <span class="badge bg-warning text-dark">{{ occupancy }} / {{ capacity }} (Filling)</span>
+    {% else %}
+        <span class="badge bg-success">{{ occupancy }} / {{ capacity }} (Space Available)</span>
+    {% endif %}
+{% endmacro %}
+
+{% macro render_priority_badge(score) %}
+    {% if score >= 8 %}
+        <span class="badge bg-danger">High Priority ({{ score }})</span>
+    {% elif score >= 4 %}
+        <span class="badge bg-warning text-dark">Medium Priority ({{ score }})</span>
+    {% else %}
+        <span class="badge bg-success">Low Priority ({{ score }})</span>
+    {% endif %}
+{% endmacro %}

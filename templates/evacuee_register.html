@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+
+        <div class="card shadow-sm border-0 p-4">
+            <h4 class="dashboard-title mb-4">Evacuee Registration</h4>
+
+            <form method="POST" enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <div class="row g-3">
+
+                    <div class="col-md-6">
+                        <input class="form-control"
+                               name="name"
+                               placeholder="Full Name"
+                               required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <input class="form-control"
+                               name="contact"
+                               placeholder="Contact Number"
+                               required>
+                    </div>
+
+                    <!-- Structured Address -->
+                    <div class="col-md-6">
+                        <input class="form-control"
+                               name="town"
+                               placeholder="Town"
+                               required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <input class="form-control"
+                               name="city"
+                               placeholder="City"
+                               required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <input class="form-control"
+                               name="district"
+                               placeholder="District"
+                               required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <input class="form-control"
+                               name="state"
+                               placeholder="State"
+                               required>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="form-label text-muted small fw-bold">Upload ID Proof (jpg, png, pdf)</label>
+                        <input type="file" class="form-control" name="id_proof" accept=".png,.jpg,.jpeg,.pdf" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <input class="form-control"
+                               name="username"
+                               placeholder="Username"
+                               required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <input type="password"
+                               class="form-control"
+                               name="password"
+                               placeholder="Password"
+                               required>
+                    </div>
+
+                </div>
+
+                <button class="btn btn-dark mt-4 w-100">
+                    Register
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

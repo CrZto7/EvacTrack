@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2 class="dashboard-title mb-4">Identity Verification</h2>
+
+<div class="card shadow-sm border-0 p-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h5 class="fw-bold mb-0">Pending Evacuee ID Proofs</h5>
+    </div>
+
+    {% if pending_users %}
+    <div class="table-responsive">
+        <table class="table align-middle datatable">
+            <thead class="table-light">
+                <tr>
+                    <th>Name</th>
+                    <th>Username</th>
+                    <th>Location</th>
+                    <th>ID Proof</th>
+                    <th>Verification Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in pending_users %}
+                <tr>
+                    <td>
+                        <div class="fw-bold">{{ u.name }}</div>
+                        <div class="small text-muted">{{ u.contact }}</div>
+                    </td>
+                    <td>{{ u.username }}</td>
+                    <td>{{ u.town }}, {{ u.city }}</td>
+                    <td>
+                        {% if u.id_proof_path and ('static\\' in u.id_proof_path or 'static/' in u.id_proof_path) %}
+                            {% set parts = u.id_proof_path.split('static/') %}
+                            {% if parts|length > 1 %}
+                                <a href="{{ url_for('static', filename=parts[1].replace('\\', '/')) }}" 
+                                   target="_blank" 
+                                   class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-file-earmark-image me-1"></i>View ID Document
+                                </a>
+                            {% else %}
+                                <span class="badge bg-secondary">Malformed Path</span>
+                            {% endif %}
+                        {% else %}
+                            <span class="badge bg-danger">Missing ID Proof</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <form action="{{ url_for('verify_evacuee_action', user_id=u.user_id, action='verify') }}" method="POST" class="d-inline">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button class="btn btn-sm btn-success"><i class="bi bi-check-lg me-1"></i>Verify</button>
+                        </form>
+                        <form action="{{ url_for('verify_evacuee_action', user_id=u.user_id, action='reject') }}" method="POST" class="d-inline ms-1">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button class="btn btn-sm btn-danger"><i class="bi bi-x-lg me-1"></i>Reject</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-success border-0 text-center py-4">
+        <i class="bi bi-check-circle-fill display-4 d-block mb-3"></i>
+        <strong>All clear!</strong> No pending identity verifications at this time.
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

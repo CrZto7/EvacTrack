@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% block content %}
+
+<section class="py-4">
+
+    <div class="mb-4">
+        <h2 class="fw-bold">Volunteer Assignment</h2>
+        <p class="text-muted">
+            Assign registered volunteers to operational shelters.
+        </p>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+
+            <form method="POST" class="row g-4">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <!-- Volunteer Selection -->
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">
+                        Select Volunteer
+                    </label>
+
+                    <select name="volunteer_id"
+                            class="form-select"
+                            required>
+
+                        <option value="" disabled selected>
+                            Choose volunteer
+                        </option>
+
+                        {% for v in volunteers %}
+                            <option value="{{ v.id }}">
+                                {{ v.name }}
+                                {% if v.city %}
+                                    — {{ v.city }}, {{ v.district }}
+                                {% endif %}
+                                {% if v.shelter_id %}
+                                    (Currently Assigned)
+                                {% endif %}
+                            </option>
+                        {% endfor %}
+
+                    </select>
+                </div>
+
+                <!-- Shelter Selection -->
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">
+                        Select Shelter
+                    </label>
+
+                    <select name="shelter_id"
+                            class="form-select"
+                            required>
+
+                        <option value="" disabled selected>
+                            Choose shelter
+                        </option>
+
+                        {% for s in shelters %}
+                            <option value="{{ s.id }}">
+                                {{ s.name }} — {{ s.location }}
+                            </option>
+                        {% endfor %}
+
+                    </select>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="col-12">
+                    <button type="submit"
+                            class="btn btn-dark px-4">
+                        Confirm Assignment
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+    <!-- Volunteer Overview Table -->
+    <div class="card shadow-sm border-0 mt-4">
+        <div class="card-body">
+
+            <h6 class="fw-semibold mb-3 text-uppercase text-muted">
+                Current Volunteer Assignments
+            </h6>
+
+            {% if volunteers %}
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Name</th>
+                                <th>Location</th>
+                                <th>Assigned Shelter</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for v in volunteers %}
+                            <tr>
+                                <td class="fw-semibold">{{ v.name }}</td>
+                                <td>{{ v.city }}, {{ v.district }}</td>
+                                <td>
+                                    {% if v.shelter_id %}
+                                        Assigned
+                                    {% else %}
+                                        <span class="text-muted">
+                                            Not Assigned
+                                        </span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted">
+                    No volunteers registered.
+                </p>
+            {% endif %}
+
+        </div>
+    </div>
+
+</section>
+
+{% endblock %}

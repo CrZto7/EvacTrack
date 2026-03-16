@@ -1,0 +1,37 @@
+<nav class="navbar navbar-expand-lg px-4">
+    <div class="container-fluid">
+
+        <!-- Left Side -->
+        <a class="navbar-brand fw-bold"
+           href="{{ url_for('role_home') }}">
+            EvacTrack
+        </a>
+
+        <!-- Right Side -->
+        <div class="ms-auto d-flex align-items-center gap-3">
+
+            {% if session.get('role') %}
+                <a href="{{ url_for('role_home') }}"
+                   class="btn btn-outline-dark btn-sm">
+                    Home
+                </a>
+
+                <span class="text-muted small">
+                    {{ session.get('role')|capitalize }}
+                </span>
+
+                <a href="{{ url_for('logout') }}"
+                   class="btn btn-dark btn-sm">
+                    Logout
+                </a>
+            {% else %}
+                <a href="{{ url_for('login') }}"
+                   class="btn btn-dark btn-sm">
+                    Login
+                </a>
+            {% endif %}
+
+        </div>
+
+    </div>
+</nav>
