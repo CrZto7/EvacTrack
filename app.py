@@ -9,6 +9,7 @@ from flask_wtf.csrf import CSRFProtect
 from markupsafe import escape
 import re
 import uuid
+from database import init_db
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "dev_secret")
@@ -59,13 +60,13 @@ def close_db(exception):
 def inject_global_data():
     conn = get_db()
     
-    active_disaster = conn.execute("SELECT disaster_type FROM disaster_status ORDER BY id DESC LIMIT 1").fetchone()
+    active_disaster = conn.execute("SELECT disaster_type, severity, location FROM disaster_status ORDER BY id DESC LIMIT 1").fetchone()
     latest_alert = conn.execute("SELECT message FROM alerts ORDER BY created_at DESC LIMIT 1").fetchone()
-    
-    
     
     return {
         'global_disaster_type': active_disaster['disaster_type'] if active_disaster else "System Normal",
+        'global_disaster_severity': active_disaster['severity'] if active_disaster else "",
+        'global_disaster_location': active_disaster['location'] if active_disaster else "",
         'global_alert': latest_alert['message'] if latest_alert else ""
     }
 
@@ -871,7 +872,20 @@ def manage_supplies(shelter_id):
 def update_disaster_status():
     conn = get_db()
     new_type = escape(request.form["disaster_type"])
-    conn.execute("INSERT INTO disaster_status (disaster_type) VALUES (?)", (new_type,))
+    
+    if new_type == "System Normal - No active disaster":
+        severity = None
+        location = None
+    else:
+        severity = escape(request.form.get("severity", "Normal"))
+        location = escape(request.form.get("location", ""))
+        if not location:
+            location = None
+    
+    conn.execute("""
+        INSERT INTO disaster_status (disaster_type, severity, location) 
+        VALUES (?, ?, ?)
+    """, (new_type, severity, location))
     conn.commit()
     
     flash("Disaster status updated successfully.")
@@ -993,4 +1007,5 @@ def complete_volunteer_task(task_id):
     return redirect(url_for("volunteer_dashboard"))
 
 if __name__ == "__main__":
+    init_db()
     app.run(debug=True)

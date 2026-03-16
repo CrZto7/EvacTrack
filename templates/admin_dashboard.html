@@ -98,7 +98,8 @@
                 <form action="{{ url_for('update_disaster_status') }}" method="POST">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <div class="mb-3">
-                        <select class="form-select form-select-lg" name="disaster_type" required>
+                        <label class="form-label small fw-semibold">Disaster Type</label>
+                        <select class="form-select" name="disaster_type" required>
                             <option value="System Normal - No active disaster" {% if current_disaster == 'System Normal - No active disaster' %}selected{% endif %}>System Normal</option>
                             <option value="Flood" {% if current_disaster == 'Flood' %}selected{% endif %}>Flood</option>
                             <option value="Earthquake" {% if current_disaster == 'Earthquake' %}selected{% endif %}>Earthquake</option>
@@ -106,6 +107,20 @@
                             <option value="Landslide" {% if current_disaster == 'Landslide' %}selected{% endif %}>Landslide</option>
                             <option value="Wildfire" {% if current_disaster == 'Wildfire' %}selected{% endif %}>Wildfire</option>
                         </select>
+                    </div>
+                    <div class="disaster-optional-field mb-3">
+                        <label class="form-label small fw-semibold">Severity</label>
+                        <select class="form-select" name="severity">
+                            <option value="" disabled selected>Select severity...</option>
+                            <option value="Low">Low</option>
+                            <option value="Medium">Medium</option>
+                            <option value="High">High</option>
+                            <option value="Extreme">Extreme</option>
+                        </select>
+                    </div>
+                    <div class="disaster-optional-field mb-3">
+                        <label class="form-label small fw-semibold">Location</label>
+                        <input type="text" class="form-control" name="location" placeholder="e.g. Coastal Regions, District A">
                     </div>
                     <button type="submit" class="btn btn-danger w-100 fw-bold">Update Status</button>
                 </form>
@@ -157,14 +172,42 @@
     </div>
 </div>
 
-<!-- Small Script to Set Width Dynamically -->
+<!-- Small Script to Set Width Dynamically and Toggle Optional Fields -->
 <script>
 document.addEventListener("DOMContentLoaded", function() {
+    // Progress bar width
     const bars = document.querySelectorAll(".progress-bar");
     bars.forEach(bar => {
         const width = bar.getAttribute("data-width");
         bar.style.width = width + "%";
     });
+
+    // Toggle Optional Fields
+    const disasterSelect = document.querySelector('select[name="disaster_type"]');
+    const severitySelect = document.querySelector('select[name="severity"]');
+    const locationInput = document.querySelector('input[name="location"]');
+    const optionalFields = document.querySelectorAll('.disaster-optional-field');
+
+    function toggleFields() {
+        const isNormal = disasterSelect.value === 'System Normal - No active disaster';
+        optionalFields.forEach(field => {
+            field.style.display = isNormal ? 'none' : 'block';
+        });
+        
+        if (isNormal) {
+            severitySelect.removeAttribute('required');
+            locationInput.removeAttribute('required');
+            // Clear values to avoid confusion
+            severitySelect.value = '';
+            locationInput.value = '';
+        } else {
+            severitySelect.setAttribute('required', 'required');
+            locationInput.setAttribute('required', 'required');
+        }
+    }
+
+    disasterSelect.addEventListener('change', toggleFields);
+    toggleFields(); // Run on load
 });
 </script>
 

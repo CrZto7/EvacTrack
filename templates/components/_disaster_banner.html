@@ -1,6 +1,11 @@
 {% if global_disaster_type and global_disaster_type != 'System Normal - No active disaster' %}
-<div class="bg-danger text-white text-center py-2 fw-bold shadow-sm">
-    <i class="bi bi-exclamation-triangle-fill me-2"></i>Current Active Disaster: {{ global_disaster_type }}
+<div class="text-white text-center py-2 fw-bold shadow-sm 
+    {% if global_disaster_severity in ['Extreme', 'High'] %}bg-danger
+    {% else %}bg-warning text-dark{% endif %}">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+    Current Active Disaster: {{ global_disaster_type }} 
+    {% if global_disaster_severity %}[{{ global_disaster_severity }} Severity]{% endif %}
+    {% if global_disaster_location %} - {{ global_disaster_location }}{% endif %}
 </div>
 {% endif %}
 
