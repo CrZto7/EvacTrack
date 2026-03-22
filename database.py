@@ -5,15 +5,6 @@ from werkzeug.security import generate_password_hash
 DATABASE = "database.db"
 
 def init_db():
-    # Remove existing database for a clean start
-    if os.path.exists(DATABASE):
-        try:
-            os.remove(DATABASE)
-            print(f"Removed existing {DATABASE}")
-        except PermissionError:
-            print(f"Error: Could not remove {DATABASE}. Please ensure the app is not running.")
-            return
-
     conn = sqlite3.connect(DATABASE)
     conn.execute("PRAGMA foreign_keys = ON")
     cursor = conn.cursor()
@@ -132,8 +123,10 @@ def init_db():
     CREATE TABLE IF NOT EXISTS disaster_status (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         disaster_type TEXT NOT NULL,
+        severity TEXT,
+        location TEXT,
         status TEXT DEFAULT 'ACTIVE',
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
     """)
 
@@ -172,18 +165,22 @@ def init_db():
     """)
 
     # DEFAULT ADMIN
-    # Ensure verification_status is 'Verified' for admin to prevent locking
-    cursor.execute("""
-    INSERT INTO users (username, password, role, verification_status)
-    VALUES (?, ?, 'admin', 'Verified')
-    """, ("admin", generate_password_hash("admin")))
+    cursor.execute("SELECT id FROM users WHERE username = 'admin'")
+    if not cursor.fetchone():
+        cursor.execute("""
+        INSERT INTO users (username, password, role, verification_status)
+        VALUES (?, ?, 'admin', 'Verified')
+        """, ("admin", generate_password_hash("admin")))
 
     # Initial Disaster Status
-    cursor.execute("INSERT INTO disaster_status (disaster_type) VALUES ('System Normal - No active disaster')")
+    cursor.execute("SELECT id FROM disaster_status")
+    if not cursor.fetchone():
+        cursor.execute("INSERT INTO disaster_status (disaster_type, severity, location, status) VALUES ('System Normal - No active disaster', 'None', 'Global', 'INACTIVE')")
 
     conn.commit()
     conn.close()
-    print("Database initialized successfully with clean state.")
+    print("Database initialized successfully.")
+
 
 if __name__ == "__main__":
     init_db()
